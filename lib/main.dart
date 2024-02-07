@@ -9,13 +9,16 @@ class MiApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Fleyar",
-      home: Inicio(),
+      home: Inicio("Fleyarin"),
     );
   }
 }
 
 class Inicio extends StatefulWidget {
-  const Inicio({super.key});
+  String title = "";
+  Inicio(String title, {super.key}) {
+    this.title = title;
+  }
 
   @override
   State<Inicio> createState() => _InicioState();
@@ -26,20 +29,15 @@ class _InicioState extends State<Inicio> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Fleyarin"),
+        title: Text(widget.title),
         backgroundColor: Colors.deepOrange,
       ),
-      body: ListView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Container(
-            padding: EdgeInsets.all(20),
-            child: Image.network(
-                "https://qph.cf2.quoracdn.net/main-qimg-6f468411fafa8e06ddb5557fe67bb79d"),
-          ),
-          Container(
-            padding: EdgeInsets.all(15),
-            child: Image.asset('assets/images/1.png'),
-          )
+          Text(widget.title),
+          Text("Fleyarin"),
         ],
       ),
     );
