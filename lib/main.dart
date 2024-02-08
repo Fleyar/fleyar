@@ -1,3 +1,4 @@
+import 'package:fleyar/pages/vista2.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MiApp());
@@ -28,7 +29,21 @@ class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: cuerpo(),
+      appBar: AppBar(
+        backgroundColor: Colors.amberAccent,
+        title: Text(widget.title),
+      ),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+              onPressed: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Vista2()))
+                  },
+              child: Icon(Icons.add)),
+        ],
+      ),
     );
   }
 }
