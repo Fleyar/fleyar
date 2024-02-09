@@ -17,25 +17,29 @@ class Vista2 extends StatelessWidget {
 Widget cuerpo() {
   return Container(
     decoration: BoxDecoration(color: Colors.amber.shade200),
-    child: Column(
-      //mainAxisAlignment: MainAxisAlignment.center,
-      children: [campoNota()],
-    ),
+    child: campoNota(), // Coloca directamente el campoNota() aquí
   );
 }
 
 Widget campoNota() {
   return Container(
     color: Colors.amber.shade200,
-    padding: EdgeInsets.symmetric(horizontal: 17, vertical: 50),
-    child: TextField(
-      keyboardType: TextInputType.multiline,
-      maxLines: null,
-      decoration: InputDecoration(
-        hintText: "Escribe una nueva nota",
-        fillColor: Colors.amber.shade100,
-        filled: true,
-      ),
+    padding: EdgeInsets.symmetric(horizontal: 17),
+    child: Column(
+      children: [
+        Expanded(
+          child: TextField(
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            decoration: InputDecoration(
+              hintText: "Escribe una nueva nota",
+              fillColor: Colors.amber.shade200,
+              filled: true,
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }
+
