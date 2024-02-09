@@ -70,7 +70,7 @@ class _Vista2State extends State<Vista2> {
               },
               decoration: InputDecoration(
                 hintText: "Escribe una nueva nota",
-                hintStyle: TextStyle(color: Colors.grey,
+                hintStyle: TextStyle(color: Colors.grey),
                 fillColor: Colors.amber.shade100,
                 filled: true,
                 border: InputBorder.none,
