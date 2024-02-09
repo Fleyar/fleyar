@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class Vista2 extends StatefulWidget {
   const Vista2({Key? key});
@@ -49,17 +50,21 @@ class _Vista2State extends State<Vista2> {
 
   Widget cuerpo() {
     return Container(
-      decoration: BoxDecoration(color: Colors.amber.shade200),
+      //decoration: BoxDecoration(color: Colors.amber.shade200),
       child: campoNota(),
     );
   }
 
   Widget campoNota() {
+    // DateTime now = DateTime.now();
+    //String formattedDate = DateFormat.yMMMEd().format(now);
     return Container(
-      color: Colors.amber.shade200,
-      padding: EdgeInsets.symmetric(horizontal: 17),
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
       child: Column(
         children: [
+          // Text(formattedDate),
+          fecha(),
           Expanded(
             child: TextField(
               controller: _textEditingController,
@@ -70,14 +75,14 @@ class _Vista2State extends State<Vista2> {
               },
               decoration: InputDecoration(
                 hintText: "Escribe una nueva nota",
-                hintStyle: TextStyle(color: Colors.grey),
-                fillColor: Colors.amber.shade100,
+                // hintStyle: TextStyle(color: Colors.grey),
+                fillColor: Colors.white,
                 filled: true,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
+                    //borderSide: BorderSide(color: Colors.white),
+                    ),
               ),
             ),
           ),
@@ -85,4 +90,20 @@ class _Vista2State extends State<Vista2> {
       ),
     );
   }
+}
+
+Widget fecha() {
+  DateTime now = DateTime.now();
+  String formattedDate = DateFormat.yMMMEd().format(now);
+  print(formattedDate);
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      Text(
+        formattedDate,
+        style:
+            TextStyle(color: Colors.blueGrey[300], fontWeight: FontWeight.bold),
+      )
+    ],
+  );
 }
