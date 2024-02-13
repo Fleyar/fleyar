@@ -42,6 +42,7 @@ class _Vista2State extends State<Vista2> {
       appBar: AppBar(
         backgroundColor: Colors.amberAccent,
         title: Text("Nueva Nota"),
+        actions: [Row(children: [ElevatedButton(onPressed: (){}, child: )],)],
       ),
       body: cuerpo(),
       floatingActionButton: FloatingActionButton(
