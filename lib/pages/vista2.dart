@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Vista2 extends StatefulWidget {
-  const Vista2({Key? key});
+  final String? notaInicial;
+
+  const Vista2({Key? key, this.notaInicial}) : super(key: key);
 
   @override
   _Vista2State createState() => _Vista2State();
@@ -16,14 +18,11 @@ class _Vista2State extends State<Vista2> {
   void initState() {
     super.initState();
     _initPrefs();
-    _textEditingController = TextEditingController();
+    _textEditingController = TextEditingController(text: widget.notaInicial);
   }
 
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _textEditingController.text = _prefs.getString('texto_guardado') ?? '';
-    });
   }
 
   @override
@@ -33,7 +32,7 @@ class _Vista2State extends State<Vista2> {
   }
 
   Future<void> _guardarTexto() async {
-    await _prefs.setString('texto_guardado', _textEditingController.text);
+    await _prefs.setString('texto_guardado_${DateTime.now().millisecondsSinceEpoch}', _textEditingController.text);
   }
 
   @override
@@ -41,9 +40,16 @@ class _Vista2State extends State<Vista2> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.amberAccent,
-        title: Text("Titulo Nota"),
+        title: Text("Nueva Nota"),
       ),
       body: cuerpo(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _guardarTexto();
+          Navigator.pop(context, _textEditingController.text);
+        },
+        child: Icon(Icons.save),
+      ),
     );
   }
 
@@ -65,9 +71,6 @@ class _Vista2State extends State<Vista2> {
               controller: _textEditingController,
               keyboardType: TextInputType.multiline,
               maxLines: null,
-              onChanged: (value) {
-                _guardarTexto();
-              },
               decoration: InputDecoration(
                 hintText: "Escribe una nueva nota",
                 hintStyle: TextStyle(color: Colors.grey),
