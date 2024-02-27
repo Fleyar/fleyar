@@ -29,10 +29,13 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
+  
     sdk: flutter
 
+  flutter_native_splash: ^2.3.13
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+
   cupertino_icons: ^1.0.2
   fui_kit: ^1.0.7
   shared_preferences: ^2.2.2
@@ -65,8 +68,14 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+  
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
+
+  #flutter_native_splash:
+  #  color: "#42a5f5"
+  #  image: assets/images/splash.png
+  #  image_dark: assets/images/splash_dark.png
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages

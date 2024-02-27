@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fleyar/pages/vista2.dart';
+import 'package:fleyar/pages/vistaConfig.dart';
 
 void main() => runApp(MiApp());
 
@@ -27,83 +28,152 @@ class Inicio extends StatefulWidget {
 }
 
 class _InicioState extends State<Inicio> {
-  List<String> _notasGuardadas = [];
+  List<String> notasGuardadas = [];
 
   @override
   void initState() {
     super.initState();
-    _cargarNotas();
+    cargarNotas();
   }
+  
+  void vistaConfig() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ConfiguracionVista()),
+  );
+}
 
-  Future<void> _cargarNotas() async {
+
+  Future<void> cargarNotas() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _notasGuardadas = prefs.getStringList('notas_guardadas') ?? [];
+      notasGuardadas = prefs.getStringList('notas_guardadas') ?? [];
     });
   }
 
-  Future<void> _guardarNota(String nota) async {
+  Future<void> guardarNota(String nota) async {
     final prefs = await SharedPreferences.getInstance();
     final List<String> notas = prefs.getStringList('notas_guardadas') ?? [];
     notas.add(nota);
     await prefs.setStringList('notas_guardadas', notas);
     setState(() {
-      _notasGuardadas = notas;
+      notasGuardadas = notas;
     });
   }
 
-  Future<void> _editarNota(int index, String nota) async {
+  Future<void> editarNota(int index, String nota) async {
     final prefs = await SharedPreferences.getInstance();
     final List<String> notas = prefs.getStringList('notas_guardadas') ?? [];
     notas[index] = nota;
     await prefs.setStringList('notas_guardadas', notas);
     setState(() {
-      _notasGuardadas = notas;
+      notasGuardadas = notas;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.amberAccent,
-        title: Text(widget.title),
-      ),
-      body: ListView.builder(
-        itemCount: _notasGuardadas.length,
-        itemBuilder: (context, index) {
-          return _tarjetaNota(_notasGuardadas[index], index);
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final nota = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Vista2()),
-          );
-          if (nota != null) {
-            await _guardarNota(nota);
-          }
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _tarjetaNota(String nota, int index) {
-    return GestureDetector(
-      onTap: () async {
-        final notaEditada = await Navigator.push(
+  return Scaffold(
+    appBar: AppBar(
+  backgroundColor: Colors.amberAccent,
+  title: Text(widget.title),
+  actions: [
+    IconButton(
+      icon: Icon(Icons.settings),
+      onPressed: () {
+        vistaConfig();
+      },
+    ),
+    IconButton(
+      icon: Icon(Icons.help),
+      onPressed: () {
+        // Aquí puedes realizar alguna otra acción cuando se presiona el botón de ayuda
+      },
+    ),
+  ],
+),
+    body: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          color: Colors.amberAccent,
+          padding: EdgeInsets.all(16),
+          child: SingleChildScrollView( 
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Vista2();
+                  },
+                  child: Text('Opción 1'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Vista2();
+                  },
+                  child: Text('Opción 2'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Vista2();
+                  },
+                  child: Text('Opción 3'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Vista2();
+                  },
+                  child: Text('Opción 4'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: notasGuardadas.length,
+            itemBuilder: (context, index) {
+              return tarjetaNota(notasGuardadas[index], index);
+            },
+          ),
+        ),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () async {
+        final nota = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Vista2(notaInicial: nota)),
+          MaterialPageRoute(builder: (context) => Vista2()),
         );
-        if (notaEditada != null) {
-          await _editarNota(index, notaEditada);
+        if (nota != null) {
+          await guardarNota(nota);
         }
       },
-      child: Card(
-        child: ListTile(
-          title: Text(nota),
+      child: Icon(Icons.add),
+    ),
+  );
+}
+
+
+  Widget tarjetaNota(String nota, int index) {
+    return SizedBox(
+      height: 100,
+      child: GestureDetector(
+        onTap: () async {
+          final notaEditada = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Vista2(notaInicial: nota)),
+          );
+          if (notaEditada != null) {
+            await editarNota(index, notaEditada);
+          }
+        },
+        child: Card(
+          child: ListTile(
+            title: Text(nota),
+          ),
         ),
       ),
     );
