@@ -11,29 +11,43 @@ class Vista2 extends StatefulWidget {
   _Vista2State createState() => _Vista2State();
 }
 
-class _Vista2State extends State<Vista2> {
-  late TextEditingController _textEditingController;
-  late SharedPreferences _prefs;
+class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
+  late TextEditingController textEditingController;
+  late SharedPreferences prefs;
+  bool isKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
-    _initPrefs();
-    _textEditingController = TextEditingController(text: widget.notaInicial);
+    initPrefs();
+    textEditingController = TextEditingController(text: widget.notaInicial);
+    WidgetsBinding.instance?.addObserver(this);
   }
 
-  Future<void> _initPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
+  Future<void> initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
   @override
   void dispose() {
-    _textEditingController.dispose();
+    textEditingController.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 
-  Future<void> _guardarTexto() async {
-    await _prefs.setString('texto_guardado_${DateTime.now().millisecondsSinceEpoch}', _textEditingController.text);
+  Future<void> guardarTexto() async {
+    await prefs.setString('texto_guardado_${DateTime.now().millisecondsSinceEpoch}', textEditingController.text);
+  }
+
+  @override
+  void didChangeMetrics() {
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardNowVisible = mediaQuery.viewInsets.bottom > 0;
+    if (isKeyboardNowVisible != isKeyboardVisible) {
+      setState(() {
+        isKeyboardVisible = isKeyboardNowVisible;
+      });
+    }
   }
 
   @override
@@ -42,51 +56,73 @@ class _Vista2State extends State<Vista2> {
       appBar: AppBar(
         backgroundColor: Colors.amberAccent,
         title: Text("Nueva Nota"),
-       /*  actions: [Row(children: [ElevatedButton(onPressed: (){}, child: )],)], */
       ),
       body: cuerpo(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: !isKeyboardVisible ? FloatingActionButton(
         onPressed: () {
-          _guardarTexto();
-          Navigator.pop(context, _textEditingController.text);
+          guardarTexto();
+          Navigator.pop(context, textEditingController.text);
         },
         child: Icon(Icons.save),
-      ),
+      ) : null,
     );
   }
 
   Widget cuerpo() {
     return Container(
-      //decoration: BoxDecoration(color: Colors.amber.shade200),
-      child: campoNota(),
+      child: Stack(
+        children: [
+          campoNota(),
+          if (isKeyboardVisible) Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Acción para el primer botón
+                    },
+                    child: Icon(Icons.image),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Acción para el segundo botón
+                    },
+                    child: Icon(Icons.draw),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget campoNota() {
-    // DateTime now = DateTime.now();
-    //String formattedDate = DateFormat.yMMMEd().format(now);
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
       child: Column(
         children: [
-          // Text(formattedDate),
           fecha(),
           Expanded(
             child: TextField(
-              controller: _textEditingController,
+              controller: textEditingController,
               keyboardType: TextInputType.multiline,
               maxLines: null,
               decoration: InputDecoration(
                 hintText: "Escribe una nueva nota",
-                // hintStyle: TextStyle(color: Colors.grey),
                 fillColor: Colors.white,
                 filled: true,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
-                focusedBorder: UnderlineInputBorder(
-                    //borderSide: BorderSide(color: Colors.white),
-                    ),
+                focusedBorder: UnderlineInputBorder(),
               ),
             ),
           ),
@@ -99,14 +135,12 @@ class _Vista2State extends State<Vista2> {
 Widget fecha() {
   DateTime now = DateTime.now();
   String formattedDate = DateFormat.yMMMEd().format(now);
-  print(formattedDate);
   return Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
       Text(
         formattedDate,
-        style:
-            TextStyle(color: Colors.blueGrey[300], fontWeight: FontWeight.bold),
+        style: TextStyle(color: Colors.blueGrey[300], fontWeight: FontWeight.bold),
       )
     ],
   );
