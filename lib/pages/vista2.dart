@@ -263,25 +263,28 @@ Widget campoNota() {
       children: [
         fecha(),
         Expanded(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              TextField(
-                controller: textEditingController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: InputDecoration(
-                  hintText: "Escribe una nueva nota",
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                  focusedBorder: UnderlineInputBorder(),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Campo de nota editable
+                TextField(
+                  controller: textEditingController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    hintText: "Escribe una nueva nota",
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    focusedBorder: UnderlineInputBorder(),
+                  ),
                 ),
-              ),
-              SizedBox(height: 10), // Ajusta según sea necesario
-              ..._buildTextWithImages(), // Aquí se mostrarán los textos y las imágenes
-            ],
+                SizedBox(height: 10), 
+                ...textoConImagen(),
+              ],
+            ),
           ),
         ),
       ],
@@ -289,8 +292,7 @@ Widget campoNota() {
   );
 }
 
-
-List<Widget> _buildTextWithImages() {
+List<Widget> textoConImagen() {
   List<Widget> children = [];
   List<String> sections = textEditingController.text.split('\n');
   for (var section in sections) {
@@ -303,7 +305,18 @@ List<Widget> _buildTextWithImages() {
         children.add(
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: _buildImageWidget(imageFile),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.file(
+                  imageFile,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+                SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       }
@@ -313,19 +326,6 @@ List<Widget> _buildTextWithImages() {
 
   return children;
 }
-
-
-Widget _buildImageWidget(File imageFile) {
-  return Image.file(
-    imageFile,
-    width: 100,
-    height: 100,
-    fit: BoxFit.cover, 
-  );
-}
-
-
-
 
 
   
