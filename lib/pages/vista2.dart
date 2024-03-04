@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_field/image_field.dart';
-
+import 'package:flutter_markdown/flutter_markdown.dart';
 class Vista2 extends StatefulWidget {
   final String? notaInicial;
 
@@ -19,12 +21,25 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
   bool isEditingTitle = false;
   String appBarTitle = "Nueva Nota";
   SampleItem? selectedItem;
+  File? imageFile;
+
+   // Lista para almacenar las imágenes seleccionadas
+  List<File> imageFiles = [];
 
   @override
   void initState() {
     super.initState();
     initPrefs();
     textEditingController = TextEditingController(text: widget.notaInicial);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      textEditingController.addListener(() {
+        setState(() {
+            // Handle changes in the text field selection here
+          // You can access the cursor position using textEditingController.selection
+          textEditingController.selection;
+        });
+      });
+    });
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -42,6 +57,33 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
   Future<void> guardarTexto() async {
     await prefs.setString('texto_guardado_${DateTime.now().millisecondsSinceEpoch}', textEditingController.text);
   }
+
+  Future<void> seleccionarImagen() async {
+  final picker = ImagePicker();
+  final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+  if (pickedImage != null) {
+    final File imageFile = File(pickedImage.path);
+    // Insertar la imagen en la posición actual del cursor
+    final currentPosition = textEditingController.selection.base.offset;
+    final currentText = textEditingController.text;
+    final newText = currentText.substring(0, currentPosition) +
+        "\n\n" + // Insertar dos saltos de línea para separar el texto y la imagen
+        "![Image description](${imageFile.path})" +
+        "\n\n" + // Insertar dos saltos de línea después de la imagen
+        currentText.substring(currentPosition);
+    setState(() {
+      textEditingController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+          offset: currentPosition + 4, // Ajustar el desplazamiento para la posición del cursor después de la inserción
+        ),
+      );
+    });
+  }
+}
+
+
+
 
   void guardarTitulo() {
     setState(() {
@@ -127,15 +169,13 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
                   onPressed: () {
                     showMenu(
                       context: context,
-                      position: RelativeRect.fromLTRB(0, 100, 0, 0), // Ajusta la posición del menú emergente según sea necesario
+                      position: RelativeRect.fromLTRB(0, 100, 0, 0),
                       items: [
                               PopupMenuItem(
                                 value: SampleItem.itemOne,
                                 child: InkWell(
                                   onTap: () {
-                                    // Acción al presionar el botón de tomar foto
-                                    Navigator.of(context).pop(); // Cerrar el menú emergente
-                                    // Llamar a la función para tomar una foto
+                                    Navigator.of(context).pop();
                                     tomarFoto();
                                   },
                                   child: Row(
@@ -152,7 +192,7 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
                                 value: SampleItem.itemTwo,
                                 child: InkWell(
                                   onTap: () {
-                                    Navigator.of(context).pop(); 
+                                    //Navigator.of(context).pop(); 
                                     seleccionarImagen();
                                   },
                                   child: Row(
@@ -168,103 +208,9 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
                             ],
                           );
                         },          
-                            child: Icon(Icons.image), // Icono del botón padre
+                            child: Icon(Icons.image), 
                           ),
                 ),
-
-
-                      /* itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-                        const PopupMenuItem<SampleItem>(
-                          value: SampleItem.itemOne,
-                          child: Text('Item 1'),
-                        ),
-                        const PopupMenuItem<SampleItem>(
-                          value: SampleItem.itemTwo,
-                          child: Text('Item 2'),
-                        ),
-                        /* const PopupMenuItem<SampleItem>(
-                          value: SampleItem.itemThree,
-                          child: Text('Item 3'),
-                        ), */
-                      ], */
-                      
-                      /* child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              // No necesitamos una acción para el botón padre ya que abre el menú emergente
-                            },
-                            child: Icon(Icons.image), // Icono del botón padre
-                          ),
-                        ), */
-                  //  ),
-                /* PopupMenuButton(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'camera',
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: TextButton(
-                                onPressed: () {
-                                  // Tomar foto
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.camera),
-                                    SizedBox(width: 8),
-                                    Text('Tomar foto'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'image',
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: TextButton(
-                                onPressed: () {
-                                  // Seleccionar imagen
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.image),
-                                    SizedBox(width: 8),
-                                    Text('Seleccionar imagen'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        onSelected: (value) {
-                          // Acción al seleccionar un elemento del menú emergente
-                          if (value == 'camera') {
-                            // Acción para el botón de tomar foto
-                          } else if (value == 'image') {
-                            // Acción para el botón de seleccionar imagen
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              // No necesitamos una acción para el botón padre ya que abre el menú emergente
-                            },
-                            child: Icon(Icons.image), // Icono del botón padre
-                          ),
-                        ),
-                      ), */
                 //SizedBox(width: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -272,9 +218,29 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      // Acción para el segundo botón
+                      seleccionarImagen();
                     },
                     child: Icon(Icons.draw),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                    },
+                    child: Icon(Icons.text_fields),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200]
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                    },
+                    child: Icon(Icons.voice_chat),
                   ),
                 ),
               ],
@@ -288,48 +254,87 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
 
 
 
-
-  Widget campoNota() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-      child: Column(
-        children: [
-          fecha(),
-          Expanded(
-            child: TextField(
-              controller: textEditingController,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              decoration: InputDecoration(
-                hintText: "Escribe una nueva nota",
-                fillColor: Colors.white,
-                filled: true,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                focusedBorder: UnderlineInputBorder(),
+Widget campoNota() {
+  return Container(
+    color: Colors.white,
+    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        fecha(),
+        Expanded(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              TextField(
+                controller: textEditingController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: "Escribe una nueva nota",
+                  fillColor: Colors.white,
+                  filled: true,
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                  focusedBorder: UnderlineInputBorder(),
+                ),
               ),
-            ),
+              SizedBox(height: 10), // Ajusta según sea necesario
+              ..._buildTextWithImages(), // Aquí se mostrarán los textos y las imágenes
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+List<Widget> _buildTextWithImages() {
+  List<Widget> children = [];
+  List<String> sections = textEditingController.text.split('\n');
+  for (var section in sections) {
+    children.add(
+      MarkdownBody(data: section),
     );
+
+    if (imageFiles.isNotEmpty) {
+      for (var imageFile in imageFiles) {
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: _buildImageWidget(imageFile),
+          ),
+        );
+      }
+      imageFiles.clear();
+    }
   }
+
+  return children;
+}
+
+
+Widget _buildImageWidget(File imageFile) {
+  return Image.file(
+    imageFile,
+    width: 100,
+    height: 100,
+    fit: BoxFit.cover, 
+  );
+}
+
+
+
+
+
   
   void tomarFoto() {
     
   }
   
-  void seleccionarImagen() {
 
-    ImageField(onSave:(List<ImageAndCaptionModel>? imageAndCaptionList){
-      
-    });
-  }
-
-
-
-} //widget observer
+}
 
 enum SampleItem { itemOne, itemTwo, itemThree }
 
