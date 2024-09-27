@@ -108,7 +108,8 @@ class _Vista2State extends State<Vista2> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.amberAccent,
+        foregroundColor: Colors.amberAccent,
+        //backgroundColor: Colors.amberAccent,
         title: isEditingTitle
             ? TextField(
                 controller: textEditingController,

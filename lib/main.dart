@@ -75,7 +75,7 @@ class _InicioState extends State<Inicio> {
   Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-  backgroundColor: Colors.amberAccent,
+  //backgroundColor: Colors.amberAccent,
   title: Text(widget.title),
   actions: [
     IconButton(
